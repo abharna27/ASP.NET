@@ -1,0 +1,30 @@
+GET http://localhost:5065/games
+
+###
+GET http://localhost:5065/games/5
+
+###
+POST http://localhost:5065/games
+content-type: application/json
+
+{
+
+  "name": "updated game 1",
+  "price": 299.99,
+  "genre": "Strategy",
+  "releaseDate": "2022-04-01"
+}
+
+###
+PUT http://localhost:5065/games/1
+Content-Type: application/json
+
+{
+  "name": "Updated Game 1",
+  "price": 19.99,
+  "genre": "",
+  "releaseDate": "2022-01-01"
+}
+
+###
+DELETE http://localhost:5065/games/1 
