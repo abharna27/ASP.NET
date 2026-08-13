@@ -8,3 +8,4 @@ builder.Services.AddSqlite<GameStoreContext>(ConnString);
 var app = builder.Build();
 app.MapGameEndpoints();
 app.Run();
+// it is main file 
