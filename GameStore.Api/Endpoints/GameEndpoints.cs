@@ -1,4 +1,8 @@
+using System.Security.Principal;
+using gamestore.api.data;
 using gamestore.api.dtos;
+using GameStore.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Api.Endpoints;
 
@@ -26,22 +30,21 @@ public static class GameEndpoints
      .WithName(getGameEndpointName);
 
     // POST / games
-    group.MapPost("/", (CreateGameDto newGame) => 
+    group.MapPost("/", (CreateGameDto newGame, GameStoreContext dbContext) => 
     { 
         if (string.IsNullOrEmpty(newGame.Name))
         {
             return Results.BadRequest("Name is required");
         }
-        
-        GameDto game = new ()
-    {
-        Id = games.Count + 1,
-        name = newGame.Name,
-        Price = newGame.Price,
-        Genre = newGame.Genre,
-        ReleaseDate = newGame.ReleaseDate.ToDateTime(new TimeOnly(0, 0))
-    };
-   games.Add(game);
+
+        Games game = new()
+        {
+            Name = newGame.Name,
+            GenreId = newGame.GenreId,
+            Price = newGame.Price,
+            ReleaseDate = newGame.ReleaseDate
+        };
+         DbContext.Games.Add(game);
    return Results.CreatedAtRoute(
     getGameEndpointName,
     new { id = game.Id },
