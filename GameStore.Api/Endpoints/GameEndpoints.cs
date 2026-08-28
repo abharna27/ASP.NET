@@ -1,8 +1,6 @@
-using System.Security.Principal;
 using gamestore.api.data;
 using gamestore.api.dtos;
 using GameStore.Api.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Api.Endpoints;
 
@@ -10,9 +8,9 @@ public static class GameEndpoints
 {
     const string getGameEndpointName = "GetGame";
    private static readonly List <GameDto> games =[
-    new GameDto { Id = 1, name = "Game 1", Price = 59.99m, Genre = "Action", ReleaseDate = new DateTime(2022, 1, 1) },
-    new GameDto { Id = 2, name = "Game 2", Price = 49.99m, Genre = "Adventure", ReleaseDate = new DateTime(2022, 2, 1) },
-    new GameDto { Id = 3, name = "Game 3", Price = 39.99m, Genre = "RPG", ReleaseDate = new DateTime(2022, 3, 1) }
+   new GameDto { Id = 1, name = "Game 1", Price = 59.99m, GenreId = 1, ReleaseDate = new DateTime(2022, 1, 1) },
+   new GameDto { Id = 2, name = "Game 2", Price = 49.99m, GenreId = 2, ReleaseDate = new DateTime(2022, 2, 1) },
+   new GameDto { Id = 3, name = "Game 3", Price = 39.99m, GenreId = 3, ReleaseDate = new DateTime(2022, 3, 1) }
 ];
  public static void MapGameEndpoints(this WebApplication app)
     {
@@ -30,25 +28,39 @@ public static class GameEndpoints
      .WithName(getGameEndpointName);
 
     // POST / games
-    group.MapPost("/", (CreateGameDto newGame, GameStoreContext dbContext) => 
-    { 
-        if (string.IsNullOrEmpty(newGame.Name))
-        {
-            return Results.BadRequest("Name is required");
-        }
+    group.MapPost("/", (CreateGameDto newGame, GameStoreContext dbContext) =>
+{
+    if (string.IsNullOrEmpty(newGame.Name))
+    {
+        return Results.BadRequest("Name is required");
+    }
 
-        Games game = new()
-        {
-            Name = newGame.Name,
-            GenreId = newGame.GenreId,
-            Price = newGame.Price,
-            ReleaseDate = newGame.ReleaseDate
-        };
-         DbContext.Games.Add(game);
-   return Results.CreatedAtRoute(
-    getGameEndpointName,
-    new { id = game.Id },
-    game);});
+    Games game = new()
+    {
+        Name = newGame.Name,
+        GenreId = newGame.GenreId,
+        Price = newGame.Price,
+        ReleaseDate = newGame.ReleaseDate
+    };
+
+    dbContext.Games.Add(game);
+    dbContext.SaveChanges();
+
+    GameDetailsDto gameDto = new()
+{
+    Id = game.Id,
+    Name = game.Name,
+    GenreId = game.GenreId,
+    Price = game.Price,
+    ReleaseDate = game.ReleaseDate
+};
+
+    return Results.CreatedAtRoute(
+        getGameEndpointName,
+        new { id = gameDto.Id },
+        gameDto
+    );
+});   
 
     //put / games/{1}
     group.MapPut("/{id}", (int id, UpdateGameDto updatedGame) =>
@@ -63,17 +75,17 @@ public static class GameEndpoints
             Id = id,
             name = updatedGame.Name,
             Price = updatedGame.Price,
-            Genre = updatedGame.Genre,
+            GenreId = updatedGame.GenreId,
             ReleaseDate = updatedGame.ReleaseDate.ToDateTime(new TimeOnly(0, 0))
         };
         return Results.NoContent();
     });
     // DELETE / games/{1}
-    group.MapDelete("/{id}", (int id) =>
-    {
-        games.RemoveAll(game => game.Id == id);
-        return Results.NoContent();
-    });
+   group.MapDelete("/{id}", (int id) =>
+{
+    games.RemoveAll(game => game.Id == id);
+    return Results.NoContent();
+});
 
-    }
-}
+}   // MapGameEndpoints
+}   // GameEndpoints

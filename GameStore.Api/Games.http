@@ -9,10 +9,12 @@ content-type: application/json
 
 {
 
-  "name": "updated game 1",
-  "price": 299.99,
-  "genre": "Strategy",
+  
+  "name": "Game 4",
+  "price": 40,
+  "genreId": 3,
   "releaseDate": "2022-04-01"
+
 }
 
 ###
